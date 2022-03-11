@@ -1,4 +1,3 @@
-
 let instanceId = 0
 
 const Draggabilly = require('draggabilly')
@@ -23,7 +22,6 @@ class ChromeTabs {
 
 	init(el) {
 		this.DOM_chrome_tabs = el
-
 		this.instanceId = instanceId
 		this.DOM_chrome_tabs.setAttribute(DATA_TABS_INSTANCE_ID, this.instanceId)
 		instanceId += 1
@@ -36,7 +34,9 @@ class ChromeTabs {
 	}
 
 	emit(eventName, data) {
-		this.DOM_chrome_tabs.dispatchEvent(new CustomEvent(eventName, { detail: data }))
+		this.DOM_chrome_tabs.dispatchEvent(new CustomEvent(eventName, {
+			detail: data
+		}))
 	}
 
 	setupCustomProperties() {
@@ -149,7 +149,10 @@ class ChromeTabs {
 		return div.firstElementChild
 	}
 
-	addTab(tabProperties, { animate = true, background = false } = {}) {
+	addTab(tabProperties, {
+		animate = true,
+		background = false
+	} = {}) {
 		const tabEl = this.createNewTabEl()
 
 		if (animate) {
@@ -161,7 +164,9 @@ class ChromeTabs {
 		this.tabContentEl.appendChild(tabEl)
 		this.setTabCloseEventListener(tabEl)
 		this.updateTab(tabEl, tabProperties)
-		this.emit('tabAdd', { tabEl })
+		this.emit('tabAdd', {
+			tabEl
+		})
 		if (!background) this.setCurrentTab(tabEl)
 		this.cleanUpPreviouslyDraggedTabs()
 		this.layoutTabs()
@@ -191,10 +196,15 @@ class ChromeTabs {
 		}
 		tabEl.setAttribute('active', '')
 		tabEl.classList.add("selected")
-		this.emit('activeTabChange', { tabEl })
+		this.emit('activeTabChange', {
+			tabEl
+		})
 	}
 
 	removeTab(tabEl) {
+		if (document.getElementsByTagName('webview').length == 1) {
+			return
+		}
 		if (tabEl === this.activeTabEl) {
 			if (tabEl.nextElementSibling) {
 				this.setCurrentTab(tabEl.nextElementSibling)
@@ -203,7 +213,9 @@ class ChromeTabs {
 			}
 		}
 		tabEl.parentNode.removeChild(tabEl)
-		this.emit('tabRemove', { tabEl })
+		this.emit('tabRemove', {
+			tabEl
+		})
 		this.cleanUpPreviouslyDraggedTabs()
 		this.layoutTabs()
 		this.setupDraggabilly()
@@ -224,6 +236,10 @@ class ChromeTabs {
 		if (tabProperties.id) {
 			tabEl.setAttribute('data-tab-id', tabProperties.id)
 		}
+	}
+
+	setTitle(tabEl, title) {
+		tabEl.querySelector(`.${TAB_CLASS}-title`).textContent = title
 	}
 
 	cleanUpPreviouslyDraggedTabs() {
@@ -317,13 +333,17 @@ class ChromeTabs {
 		} else {
 			tabEl.parentNode.insertBefore(tabEl, this.tabEls[destinationIndex + 1])
 		}
-		this.emit('tabReorder', { tabEl, originIndex, destinationIndex })
+		this.emit('tabReorder', {
+			tabEl,
+			originIndex,
+			destinationIndex
+		})
 		this.layoutTabs()
 	}
 }
 
 
-const noop = _ => { }
+const noop = _ => {}
 
 const closest = (value, array) => {
 	let closest = Infinity
@@ -352,7 +372,7 @@ const tabTemplate = `
 `
 
 const defaultTapProperties = {
-	title: 'New tab',
+	title: '新标签',
 	favicon: false
 }
 
@@ -365,7 +385,7 @@ class ElectronChromeTabs {
 	accTabId = 0; //Tab id accumulator
 
 	tabs = []
-	views = [] 
+	views = []
 
 	viewToPush = undefined;
 
@@ -405,9 +425,8 @@ class ElectronChromeTabs {
 			let id = this.accTabId++
 			tab["data-ectTabId"] = id
 			this.tabs.push(tab)
-			//console.debug("Tab added:", id, event.detail)
 
-			if(this.viewToPush)
+			if (this.viewToPush)
 				this.views.push(this.viewToPush)
 			else {
 				throw "View to push is undefined"
@@ -417,35 +436,28 @@ class ElectronChromeTabs {
 		this.DOM_tabs.addEventListener("tabRemove", (event) => {
 			let tab = event.detail.tabEl
 			let id = tab["data-ectTabId"]
-			console.debug("Tab remove: ", id)
-
-			console.debug("Tab array: ", this.views)
-
-			this.views[id].remove() //Delete from document
-			delete this.views[id] //Delete from array
-
-			console.debug("Tab array after delete: ", this.views)
+			this.views[id].remove()
+			delete this.views[id]
 		});
 	}
 
-	addTab(title, favicon="", src=undefined) {
+	addTab(title, favicon = "", src = undefined) {
 		let child = undefined
-		if(src) {
-			console.log("Adding webview view")
+		if (src) {
+			// console.log("Adding webview view" + this.accTabId)
 			child = document.createElement("webview")
 			child.setAttribute("src", src);
+			child.setAttribute("id", 'julan' + (this.accTabId ? this.accTabId : null));
+			child.setAttribute("allowpopups", true)
 		} else {
-			console.log("Adding div view")
+			// console.log("Adding div view")
 			child = document.createElement("div");
-
-			//child.innerHTML = "<html><body>Test Body</body></html>"
 		}
 		child.classList.add("eb-view");
 		child.dataset.eb_view_id = this.accTabId;
 
 		this.viewToPush = child;
 
-		
 		this.DOM_browser_views.appendChild(child);
 
 		let tabEl = chromeTabs.addTab({
@@ -472,6 +484,9 @@ class ElectronChromeTabs {
 			"activeTab": this.activeTab,
 			"activeWebview": this.activeView
 		}
+	}
+	setCurrentTitle(title) {
+		chromeTabs.setTitle(this.activeTab, title)
 	}
 
 	hideTabsBar() {
