@@ -161,6 +161,9 @@ class ChromeTabs {
 		}
 
 		tabProperties = Object.assign({}, defaultTapProperties, tabProperties)
+		if(tabProperties.title === '新标签'){
+			return
+		}
 		this.tabContentEl.appendChild(tabEl)
 		this.setTabCloseEventListener(tabEl)
 		this.updateTab(tabEl, tabProperties)
