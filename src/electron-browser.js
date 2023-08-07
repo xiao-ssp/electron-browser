@@ -452,7 +452,7 @@ class ElectronChromeTabs {
             // console.log("Adding webview view" + this.accTabId)
             child = document.createElement("webview")
             child.setAttribute("src", src);
-            child.setAttribute("id", 'julan' + (this.accTabId ? this.accTabId : null));
+            child.setAttribute("id", 'julan' + (this.accTabId ? this.accTabId : 0));
             child.setAttribute("allowpopups", true)
         } else {
             // console.log("Adding div view")
