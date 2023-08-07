@@ -497,7 +497,7 @@ class ElectronChromeTabs {
 
     setTitle(url, title) {
         const box = document.querySelector("webview[src='"+url+"']");
-        const tab = document.getElementsByClassName("${TAB_CLASS}-title")[box.getAttribute('id').replace('julan','')]
+        const tab = document.getElementsByClassName("tab-title")[box.getAttribute('id').replace('julan','')]
         tab.textContent = title;
     }
 
