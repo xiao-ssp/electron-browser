@@ -496,7 +496,7 @@ class ElectronChromeTabs {
     }
 
     setTitle(tabEl, title) {
-        chromeTabs.setTitle(tabEl, title)
+        chromeTabs.setTitle(this.tabs[tabEl], title)
     }
 
     hideTabsBar() {
