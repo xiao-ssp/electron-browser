@@ -166,6 +166,7 @@ class ChromeTabs {
         }
         this.tabContentEl.appendChild(tabEl)
         this.setTabCloseEventListener(tabEl)
+
         this.updateTab(tabEl, tabProperties)
         this.emit('tabAdd', {
             tabEl
@@ -226,7 +227,7 @@ class ChromeTabs {
 
     updateTab(tabEl, tabProperties) {
         tabEl.querySelector(`.${TAB_CLASS}-title`).textContent = tabProperties.title
-
+        tabEl.querySelector(`.${TAB_CLASS}-title`).setAttribute('id', 'tab' + (tabProperties.id != undefined ? tabProperties.id : 0))
         const faviconEl = tabEl.querySelector(`.${TAB_CLASS}-favicon`)
         if (tabProperties.favicon) {
             faviconEl.style.backgroundImage = `url('${tabProperties.favicon}')`
@@ -234,10 +235,6 @@ class ChromeTabs {
         } else {
             faviconEl.setAttribute('hidden', '')
             faviconEl.removeAttribute('style')
-        }
-
-        if (tabProperties.id) {
-            tabEl.setAttribute('data-tab-id', tabProperties.id)
         }
     }
 
@@ -446,16 +443,15 @@ class ElectronChromeTabs {
         });
     }
 
-    addTab(title, favicon = "", src = undefined) {
+    addTab(title, favicon = "", src = undefined, id = undefined) {
         let child = undefined
+        this.accTabId
         if (src) {
-            // console.log("Adding webview view" + this.accTabId)
             child = document.createElement("webview")
             child.setAttribute("src", src);
-            child.setAttribute("id", 'julan' + (this.accTabId ? this.accTabId : 0));
+            child.setAttribute("id", 'julan' + id);
             child.setAttribute("allowpopups", true)
         } else {
-            // console.log("Adding div view")
             child = document.createElement("div");
         }
         child.classList.add("eb-view");
@@ -467,7 +463,8 @@ class ElectronChromeTabs {
 
         let tabEl = chromeTabs.addTab({
             title: title,
-            favicon: favicon
+            favicon: favicon,
+            id: id
         });
 
         this.activeTab = tabEl;
@@ -495,10 +492,8 @@ class ElectronChromeTabs {
         chromeTabs.setTitle(this.activeTab, title)
     }
 
-    setTitle(url, title) {
-        const box = document.querySelector("webview[src='"+url+"']");
-        const tab = document.getElementsByClassName("tab-title")[box.getAttribute('id').replace('julan','')]
-        tab.textContent = title;
+    setTitle(id, title) {
+        document.getElementById('tab' + id).textContent = title
     }
 
     hideTabsBar() {
