@@ -405,12 +405,21 @@ class ElectronChromeTabs {
             console.debug("Active tab changed to: ", tab, id)
 
             function set_active_webview_and_deselect_others(view, i) {
-                if (i == id) {
-                    view.classList.add("selected");
-                    this.activeView = view
-                } else {
-                    view.classList.remove("selected");
+                for (var i = 0; i < this.views.length; i++) {
+                    if (this.views[i].dataset.eb_view_id == id) {
+                        this.views[i].classList.add("selected");
+                        this.activeView = this.views[i]
+                    } else {
+                        this.views[i].classList.remove("selected");
+                    }
                 }
+
+                // if (this.accTabId == id) {
+                //     view.classList.add("selected");
+                //     this.activeView = view
+                // } else {
+                //     view.classList.remove("selected");
+                // }
             }
 
             var boundFunction = set_active_webview_and_deselect_others.bind(this)
@@ -424,7 +433,7 @@ class ElectronChromeTabs {
 
         this.DOM_tabs.addEventListener('tabAdd', (event) => {
             let tab = event.detail.tabEl
-            let id = this.accTabId++
+            let id = this.accTabId ? this.accTabId : this.accTabId++
             tab["data-ectTabId"] = id
             this.tabs.push(tab)
 
@@ -438,14 +447,18 @@ class ElectronChromeTabs {
         this.DOM_tabs.addEventListener("tabRemove", (event) => {
             let tab = event.detail.tabEl
             let id = tab["data-ectTabId"]
-            this.views[id].remove()
-            delete this.views[id]
+            for (var i = 0; i < this.views.length; i++) {
+                if (this.views[i].dataset.eb_view_id === id) {
+                    this.views[i].remove()
+                    delete this.views[i]
+                }
+            }
         });
     }
 
     addTab(title, favicon = "", src = undefined, id = undefined) {
         let child = undefined
-        this.accTabId
+        this.accTabId = id
         if (src) {
             child = document.createElement("webview")
             child.setAttribute("src", src);
@@ -455,7 +468,7 @@ class ElectronChromeTabs {
             child = document.createElement("div");
         }
         child.classList.add("eb-view");
-        child.dataset.eb_view_id = this.accTabId;
+        child.dataset.eb_view_id = id;
 
         this.viewToPush = child;
 
