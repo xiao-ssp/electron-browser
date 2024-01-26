@@ -426,7 +426,7 @@ class ElectronChromeTabs {
 
             this.views.forEach(boundFunction)
 
-            this.activeTab = this.tabs[id]
+            // this.activeTab = this.tabs[id]
 
             this.getCurrent()
         });
@@ -469,6 +469,7 @@ class ElectronChromeTabs {
         }
         child.classList.add("eb-view");
         child.dataset.eb_view_id = id;
+        child.dataset.title = title;
 
         this.viewToPush = child;
 
