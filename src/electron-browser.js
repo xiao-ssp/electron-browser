@@ -409,7 +409,8 @@ class ElectronChromeTabs {
                     if (this.views[i].dataset.eb_view_id == id) {
                         this.views[i].classList.add("selected");
                         this.activeView = this.views[i]
-		    	this.activeTab = this.views[i]
+                        this.activeTab = this.views[i]
+                        this.accTabId = this.views[i].dataset.eb_view_id
                     } else {
                         this.views[i].classList.remove("selected");
                     }
@@ -508,6 +509,7 @@ class ElectronChromeTabs {
     }
 
     setTitle(id, title) {
+        console.log('setTitle',id,title)
         document.getElementById('tab' + id).textContent = title
     }
 
